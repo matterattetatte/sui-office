@@ -1,6 +1,7 @@
 import { backend } from "declarations/backend";
 
 document.querySelector("form").addEventListener("submit", async (e) => {
+  console.log('backend', backend);
   e.preventDefault();
   const button = e.target.querySelector("button");
   const name = document.getElementById("name").value.toString();

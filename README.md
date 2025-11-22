@@ -60,3 +60,13 @@ If you want to start working on your project right away, you might want to try t
 dfx help
 dfx canister --help
 ```
+
+
+Notes:
+
+
+```
+dfx stop  # Stops the local replica if running
+rm -rf .dfx  # Nukes the build cache (safe; regenerates everything)
+dfx start --clean --background  
+```
