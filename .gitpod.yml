@@ -1,0 +1,33 @@
+tasks:
+  - before: |
+      export DFX_VERSION=0.25.0
+      export POCKET_IC_SERVER_VERSION=8.0.0
+      export DFXVM_INIT_YES=true
+      export PATH="$HOME/bin:$PATH"
+      echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+      rustup target add wasm32-unknown-unknown
+      sudo apt-get install -q -y libunwind-dev
+      curl -Ls https://github.com/dfinity/pocketic/releases/download/${POCKET_IC_SERVER_VERSION}/pocket-ic-x86_64-linux.gz -o pocket-ic.gz
+      gzip -d pocket-ic.gz
+      chmod +x pocket-ic
+      sudo mv pocket-ic /usr/local/bin
+      sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+      source "$HOME/.local/share/dfx/env"
+      unset DFX_VERSION
+      open README.md
+
+vscode:
+  extensions:
+    - dfinity-foundation.vscode-motoko
+    - tamasfe.even-better-toml
+    - rust-lang.rust-analyzer
+
+ports:
+  - name: Dfx
+    port: 4943
+    visibility: public
+    onOpen: ignore
+  - name: Vite
+    port: 5173
+    visibility: public
+    onOpen: open-browser

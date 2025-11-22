@@ -1,0 +1,24 @@
+{
+  "name": "Hello World",
+  "image": "ghcr.io/dfinity/icp-dev-env:18",
+  "forwardPorts": [4943, 5173],
+  "portsAttributes": {
+    "4943": {
+      "label": "dfx",
+      "onAutoForward": "ignore"
+    },
+    "5173": {
+      "label": "vite",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dfinity-foundation.vscode-motoko",
+        "tamasfe.even-better-toml",
+        "rust-lang.rust-analyzer"
+      ]
+    }
+  }
+}
