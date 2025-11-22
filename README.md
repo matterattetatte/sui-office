@@ -70,3 +70,6 @@ dfx stop  # Stops the local replica if running
 rm -rf .dfx  # Nukes the build cache (safe; regenerates everything)
 dfx start --clean --background  
 ```
+
+dfx build
+dfx deploy backend
