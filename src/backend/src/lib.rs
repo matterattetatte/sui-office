@@ -1,9 +1,10 @@
 // src/backend/src/lib.rs
 use candid::{candid_method, Nat};
 use ic_cdk::api::management_canister::http_request::{
-    http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse,
+    http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse
 };
 use ic_cdk_macros::{query, update};
+use base64::{engine::general_purpose, Engine as _};
 
 // ────────────────────── greet (for testing) ──────────────────────
 #[query]
@@ -35,35 +36,40 @@ async fn read_blob(blob_id: String) -> Result<Vec<u8>, String> {
 // ────────────────────── 2. WRITE blob to Walrus (returns blobId) ──────────────────────
 #[update]
 #[candid_method]
-async fn upload_blob(data: Vec<u8>) -> Result<String, String> {
+async fn upload_blob(file_name: String, content: String) -> Result<String, String> {
+    let data = general_purpose::STANDARD.decode(&content)
+        .map_err(|e| format!("Invalid base64: {e}"))?;
+
     let url = "https://aggregator.walrus.testnet.sui.io/v1/upload".to_string();
-    // Mainnet → https://aggregator.walrus.sui.io/v1/upload
+    // Mainnet → "https://aggregator.walrus.sui.io/v1/upload"
 
     let request = CanisterHttpRequestArgument {
         url,
         method: HttpMethod::POST,
         body: Some(data),
-        max_response_bytes: Some(1024),
-        headers: vec![HttpHeader {
-            name: "Content-Type".to_string(),
-            value: "application/octet-stream".to_string(),
-        }],
+        max_response_bytes: Some(2_000_000), // enough for JSON response
+        headers: vec![
+            HttpHeader { name: "Content-Type".to_string(), value: "application/octet-stream".to_string() },
+            HttpHeader { name: "X-Filename".to_string(), value: file_name }, // optional, helps explorers
+        ],
         transform: Some(transform_context()),
     };
 
-    let (response,) = call_and_check(request, 100_000_000u128).await?;
+    let (response,) = http_request(request, 100_000_000u128).await
+        .map_err(|(code, msg)| format!("HTTP request rejected: {:?} {:?}", code, msg))?;
 
-    // Walrus returns JSON like: {"blobId":"abc123...","alreadyCertified":false}
-    let json_str = String::from_utf8_lossy(&response.body);
-    let json: serde_json::Value = serde_json::from_str(&json_str)
-        .map_err(|e| format!("Failed to parse Walrus response: {e}"))?;
+    if response.status != Nat::from(200u32) {
+        let err = String::from_utf8_lossy(&response.body);
+        return Err(format!("Walrus error {}: {err}", response.status));
+    }
 
-    let blob_id = json["blobId"]
+    let json: serde_json::Value = serde_json::from_slice(&response.body)
+        .map_err(|e| format!("JSON parse error: {e}"))?;
+
+    json["blobId"]
         .as_str()
-        .ok_or("blobId missing in Walrus response")?
-        .to_string();
-
-    Ok(blob_id)
+        .map(|s| s.to_string())
+        .ok_or_else(|| "No blobId in response".to_string())
 }
 
 // ────────────────────── Helper: shared transform & outcall ──────────────────────
@@ -83,9 +89,9 @@ async fn call_and_check(
 ) -> Result<(HttpResponse,), String> {
     let (resp,) = http_request(req, cycles)
         .await
-        .map_err(|(code, msg)| format!("HTTP outcall rejected: {code:?} — {msg}"))?;
+        .map_err(|(code, msg)| format!("HTTP outcall rejected: {:?} — {:?}", code, msg))?;
 
-    if resp.status != Nat::from(200u32) {
+    if resp.status != 200u16 {
         let body = String::from_utf8_lossy(&resp.body);
         return Err(format!("Walrus error {}: {body}", resp.status));
     }
