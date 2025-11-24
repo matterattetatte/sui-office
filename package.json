@@ -3,7 +3,8 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "prebuild": "npm run prebuild --workspaces --if-present",
-    "dev": "npm run dev --workspaces --if-present"
+    "dev": "npm run dev --workspaces --if-present",
+    "update:candid": "candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > src/backend/backend.did && dfx generate backend"
   },
   "type": "module",
   "workspaces": [

@@ -11,5 +11,5 @@ service : {
   greet : (text) -> (text);
   read_blob : (text) -> (Result);
   transform : (TransformArgs) -> (HttpResponse) query;
-  upload_blob : (blob) -> (Result_1);
+  upload_blob : (text, blob) -> (Result_1);
 }

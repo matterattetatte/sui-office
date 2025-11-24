@@ -1,0 +1,3 @@
+[submodule "src/walrus"]
+	path = src/walrus
+	url = https://github.com/MystenLabs/walrus

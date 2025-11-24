@@ -54,13 +54,15 @@ checksum = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
 name = "backend"
 version = "0.1.0"
 dependencies = [
- "base64 0.22.1",
+ "anyhow",
  "candid",
+ "hex",
  "ic-cdk",
  "ic-cdk-macros 0.16.0",
  "pocket-ic",
  "serde",
  "serde_json",
+ "sui-sdk",
 ]
 
 [[package]]
@@ -1724,6 +1726,12 @@ name = "subtle"
 version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
+
+[[package]]
+name = "sui-sdk"
+version = "0.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7436ad98d57cc70b6abe3f70d1111e1688b1ab66abaf14ffd459cf8888c9f57"
 
 [[package]]
 name = "syn"
